@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ena">
+<meta name="theme-color" content="#1F3864">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<title>Ena</title>
+<style>
+:root{
+  --bg:#F5F6FA; --card:#FFFFFF; --ink:#111827; --muted:#5B6474; --line:#DCE1EA;
+  --accent:#1F3864; --accent-ink:#FFFFFF; --soft:#E7ECF6; --warn:#9A3412; --warn-bg:#FFF4E5;
+  --ok:#0F766E; --bad:#B91C1C; --sel:#1F3864;
+  --r:14px; --tap:46px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1117; --card:#171B24; --ink:#E7EAF0; --muted:#9AA3B2; --line:#2A3140;
+    --accent:#8FB2F0; --accent-ink:#0E1117; --soft:#1F2633; --warn:#FDBA74; --warn-bg:#2A1F12;
+    --ok:#5EEAD4; --bad:#FCA5A5; --sel:#8FB2F0;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:17px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Georgian","Helvetica Neue",Arial,sans-serif;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:8px;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 8px;border-bottom:1px solid var(--line)}
+header .brand{font-weight:700;letter-spacing:.02em;color:var(--accent)}
+header h1{flex:1;font-size:17px;margin:0;font-weight:600}
+.iconbtn{width:var(--tap);height:var(--tap);border:0;background:transparent;color:var(--ink);border-radius:12px;display:grid;place-items:center}
+.iconbtn:active{background:var(--soft)}
+main{max-width:640px;margin:0 auto;padding:12px 16px 24px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;display:grid;grid-template-columns:repeat(5,1fr);
+  background:var(--card);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+nav.tabs button{min-height:54px;border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;border-radius:10px}
+nav.tabs button[aria-current="page"]{color:var(--accent);background:var(--soft)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px}
+.banner{margin:10px 16px 0;padding:10px 12px;border-radius:12px;background:var(--warn-bg);color:var(--warn);font-size:15px;max-width:608px}
+@media(min-width:672px){.banner{margin:10px auto 0}}
+.banner button{margin-top:6px}
+label.f{display:block;font-size:14px;font-weight:600;color:var(--muted);margin:12px 0 5px}
+input[type=text],input[type=date],input[type=time],input[type=number],select,textarea{
+  width:100%;min-height:var(--tap);padding:10px 12px;border:1px solid var(--line);border-radius:12px;
+  background:var(--card);color:var(--ink);font:inherit}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.chip{min-height:var(--tap);padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font:inherit;font-size:15px}
+.chip{min-height:36px;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:var(--accent-ink);font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--tap);padding:0 18px;border-radius:12px;
+  border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:600}
+.btn.secondary{background:transparent;color:var(--accent)}
+.btn.quiet{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn.danger{background:transparent;border-color:var(--bad);color:var(--bad)}
+.btn.block{width:100%;margin-top:14px}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.muted{color:var(--muted)} .small{font-size:14px} .tiny{font-size:12.5px}
+.err{color:var(--bad);font-size:14px;margin-top:8px}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.list .main{flex:1;min-width:0}
+.linkbtn{border:0;background:none;color:var(--accent);font:inherit;font-size:14px;padding:8px 4px;min-height:36px}
+.steps{display:flex;gap:4px;overflow-x:auto;margin:4px 0 12px}
+.steps button{flex:1;min-height:40px;border:1px solid var(--line);background:var(--card);border-radius:10px;font:inherit;font-size:14px;color:var(--muted);white-space:nowrap;padding:0 8px}
+.steps button[aria-current="step"]{border-color:var(--accent);color:var(--accent);font-weight:700}
+.word-de{font-size:28px;font-weight:700;margin:2px 0}
+.word-ka{font-size:28px;font-weight:600;margin:0 0 4px}
+.lang-row{display:grid;grid-template-columns:92px 1fr 1fr 1fr;gap:8px;align-items:center;margin-top:12px}
+.lang-row .lbl{font-size:14px;font-weight:700;color:var(--muted)}
+.code{min-height:58px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-size:22px;font-weight:700}
+.code[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:var(--accent-ink)}
+.code:disabled{opacity:.35}
+.code.locked[aria-pressed="true"]{opacity:1}
+.lock{font-size:12.5px;color:var(--muted);margin:4px 0 0 100px}
+.rule{font-size:13px;color:var(--muted);margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.big-id{font:600 22px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em;word-break:break-all}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:13px;background:var(--soft);color:var(--muted)}
+.pill.ok{color:var(--ok)} .pill.bad{color:var(--bad)}
+.check{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:0}
+.check input{width:24px;height:24px;margin-top:2px;flex:none;accent-color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:999px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.toast.on{opacity:1}
+h2{font-size:19px;margin:6px 0 10px} h3{font-size:16px;margin:0 0 6px}
+details summary{cursor:pointer;color:var(--accent);font-weight:600;min-height:36px;display:flex;align-items:center}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+</style>
+</head>
+<body>
+<header>
+  <span class="brand">Ena</span>
+  <h1 id="title">Today</h1>
+  <button class="iconbtn" data-act="tab" data-tab="settings" aria-label="Settings">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+  </button>
+</header>
+<div id="banners"></div>
+<main id="view" aria-live="polite"></main>
+<nav class="tabs" id="tabs">
+  <button data-act="tab" data-tab="today">Today</button>
+  <button data-act="tab" data-tab="month">Month</button>
+  <button data-act="tab" data-tab="week">Week</button>
+  <button data-act="tab" data-tab="firsts">Firsts</button>
+  <button data-act="tab" data-tab="record">Record</button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="filepick" accept=".json,application/json" hidden>
+<script src="./core.js"></script>
+<script>
+'use strict';
+var APP_VERSION = '1.0.0';
+var C = window.EnaCore;
+
+/* ============================================================ storage */
+var DB = {
+  db: null,
+  open: function () {
+    return new Promise(function (res, rej) {
+      if (!window.indexedDB) return rej(new Error('no indexedDB'));
+      var r = indexedDB.open('ena', 1);
+      r.onupgradeneeded = function () {
+        var d = r.result;
+        if (!d.objectStoreNames.contains('events')) d.createObjectStore('events', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');
+      };
+      r.onsuccess = function () { DB.db = r.result; res(); };
+      r.onerror = function () { rej(r.error); };
+    });
+  },
+  req: function (store, mode, fn) {
+    return new Promise(function (res, rej) {
+      var tx = DB.db.transaction(store, mode), os = tx.objectStore(store), out = fn(os);
+      tx.oncomplete = function () { res(out && out.result !== undefined ? out.result : undefined); };
+      tx.onerror = function () { rej(tx.error); };
+      tx.onabort = function () { rej(tx.error || new Error('aborted')); };
+    });
+  },
+  allEvents: function () { return DB.req('events', 'readonly', function (os) { return os.getAll(); }); },
+  putEvents: function (list) { return DB.req('events', 'readwrite', function (os) { list.forEach(function (e) { os.put(e); }); }); },
+  get: function (k) { return DB.req('kv', 'readonly', function (os) { return os.get(k); }); },
+  set: function (k, v) { return DB.req('kv', 'readwrite', function (os) { os.put(v, k); }); },
+  wipe: function () {
+    return Promise.all([DB.req('events', 'readwrite', function (os) { os.clear(); }),
+                        DB.req('kv', 'readwrite', function (os) { os.clear(); })]);
+  }
+};
+
+/* ============================================================== state */
+var S = { events: [], defs: C.emptyDefs(), settings: { dob: '' }, device: null, background: {},
+          seedId: '', lastBackup: '', storageOK: true, persisted: null, st: null };
+var UI = { tab: 'today', msg: {}, month: { label: '', step: 'words', idx: null, pending: {} },
+           firstOpen: null, recDraft: null, onboard: { label: '', main: null }, importNote: '' };
+
+function refold() { S.st = C.fold(S.events, S.defs); }
+function saveKV(k, v) { return S.storageOK ? DB.set(k, v) : Promise.resolve(); }
+
+function addEvents(list) {
+  var evs = list.map(function (x) { return C.makeEvent(S.device, x[0], x[1]); });
+  var p = S.storageOK ? DB.putEvents(evs) : Promise.resolve();
+  return p.then(function () {
+    Array.prototype.push.apply(S.events, evs);
+    refold();
+    return evs;
+  }).catch(function (err) {
+    toast('Not saved: ' + (err && err.message || err));
+    throw err;
+  });
+}
+function add(type, data) { return addEvents([[type, data]]).then(function (e) { return e[0]; }); }
+
+/* ============================================================ helpers */
+function esc(s) { return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, function (c) {
+  return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function today() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function nowHM() { var d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function age(date) { return S.settings.dob ? C.ageText(S.settings.dob, date) : ''; }
+function currentLabel() {
+  var l = S.settings.dob ? C.monthLabel(S.settings.dob, today()) : '';
+  var m = C.labelToMonth(l);
+  if (m === null) return '15;0';
+  return (m < 15 ? 15 : m > 36 ? 36 : m) + ';0';
+}
+var toastTimer;
+function toast(t) {
+  var el = document.getElementById('toast'); el.textContent = t; el.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('on'); }, 2200);
+}
+function seg(name, options, value) {
+  return '<div class="seg" role="group">' + options.map(function (o) {
+    var v = Array.isArray(o) ? o[0] : o, lab = Array.isArray(o) ? o[1] : o;
+    return '<button type="button" data-act="seg" data-name="' + esc(name) + '" data-value="' + esc(v) +
+      '" aria-pressed="' + (value === v) + '">' + esc(lab) + '</button>';
+  }).join('') + '</div>';
+}
+function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function isMain() { return !!(S.device && S.device.main); }
+function daysSince(iso) { return iso ? Math.floor((Date.now() - Date.parse(iso)) / 86400000) : null; }
+function isIOS() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function standalone() { return window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+
+/* ============================================================ banners */
+function renderBanners() {
+  var b = [];
+  if (!S.storageOK) b.push('<div class="banner"><b>Storage unavailable.</b> Nothing entered here will be saved. Open Ena from your home-screen icon.</div>');
+  else if (isIOS() && !standalone()) b.push('<div class="banner"><b>Use the home-screen icon.</b> In a Safari tab Ena keeps a separate, empty storage. Share → Add to Home Screen, then always open it from there.</div>');
+  if (S.device && S.events.length) {
+    var d = daysSince(S.lastBackup);
+    if (d === null || d >= 7) b.push('<div class="banner"><b>' + (d === null ? 'No backup yet.' : 'Last backup ' + d + ' days ago.') +
+      '</b> Removing the app icon deletes everything on this phone.<br><button class="btn secondary" data-act="backup">Send backup now</button></div>');
+  }
+  document.getElementById('banners').innerHTML = b.join('');
+}
+
+/* ============================================================== views */
+var TITLES = { today: 'Today', month: 'Month', week: 'Week', firsts: 'Firsts', record: 'Record', settings: 'Settings', onboard: 'Set up' };
+function render() {
+  var needsSetup = !S.device || !S.settings.dob || !S.defs.items.length;
+  var tab = needsSetup && UI.tab !== 'settings' ? 'onboard' : UI.tab;
+  document.getElementById('title').textContent = TITLES[tab];
+  Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (bt) {
+    if (bt.dataset.tab === tab) bt.setAttribute('aria-current', 'page'); else bt.removeAttribute('aria-current');
+  });
+  renderBanners();
+  var v = document.getElementById('view');
+  v.innerHTML = VIEWS[tab]();
+  if (VIEWS[tab].after) VIEWS[tab].after();
+}
+
+var VIEWS = {};
+
+/* ---------------------------------------------------------- onboarding */
+VIEWS.onboard = function () {
+  var o = UI.onboard, h = '<div class="card"><h2>Set up this phone</h2>';
+  if (!S.device) {
+    h += '<label class="f" for="ob-label">Name this phone</label><input type="text" id="ob-label" placeholder="e.g. Dad\'s iPhone" value="' + esc(o.label) + '">' +
+      '<label class="f">Is this the main phone?</label>' +
+      seg('ob-main', [['yes', 'Yes — monthly sessions happen here'], ['no', 'No — second phone, daily log only']], o.main) +
+      '<p class="small muted">Monthly coding counts only from the main phone, so a second phone can never overwrite a month.</p>' +
+      '<button class="btn block" data-act="ob-save">Continue</button>' + (UI.msg.ob ? '<div class="err">' + esc(UI.msg.ob) + '</div>' : '');
+  } else {
+    h += '<p>This phone: <b>' + esc(S.device.label) + '</b> · ' + (isMain() ? 'main phone' : 'second phone') + '</p>' +
+      '<p class="small">Now import a file. On the main phone, that is the <b>workbook import file</b> prepared from your Excel workbook. On a second phone, it is a <b>backup</b> sent from the main phone.</p>' +
+      '<button class="btn block" data-act="import">Import file…</button>' + (UI.importNote ? '<p class="small">' + esc(UI.importNote) + '</p>' : '');
+  }
+  return h + '</div>';
+};
+
+/* --------------------------------------------------------------- today */
+VIEWS.today = function () {
+  var t = UI.todayDraft || (UI.todayDraft = { date: today(), lang: '', mode: '' });
+  var h = '<div class="card">' +
+    '<div class="spread"><label class="f" for="t-date" style="margin-top:0">Date</label><span class="small muted">age ' + esc(age(t.date)) + '</span></div>' +
+    '<input type="date" id="t-date" value="' + esc(t.date) + '" data-change="t-date">' +
+    '<label class="f" for="t-heard">What he said — exactly as heard</label><input type="text" id="t-heard" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="e.g. dädä">' +
+    '<label class="f" for="t-target">Target word</label><input type="text" id="t-target" autocomplete="off" spellcheck="false" placeholder="e.g. დედა">' +
+    '<label class="f">Language</label>' + seg('t-lang', ['KA', 'DE', 'mixed', 'unclear'], t.lang) +
+    '<label class="f">How</label>' + seg('t-mode', ['spontaneous', 'imitated', 'prompted'], t.mode) +
+    '<label class="f" for="t-where">Who / where</label><input type="text" id="t-where" autocomplete="off">' +
+    '<div class="row" style="margin-top:6px">' + ['kitchen', 'play', 'bath', 'outside', 'Kita pickup', 'mother', 'father'].map(function (c) {
+      return '<button type="button" class="chip" data-act="chip" data-for="t-where" data-value="' + esc(c) + '">' + esc(c) + '</button>'; }).join('') + '</div>' +
+    '<label class="f" for="t-note">Note</label><input type="text" id="t-note" autocomplete="off">' +
+    (UI.msg.today ? '<div class="err">' + esc(UI.msg.today) + '</div>' : '') +
+    '<button class="btn block" data-act="t-save">Save</button>' +
+    '<p class="tiny muted">Only spontaneous use counts toward an S code. Imitations are still worth logging.</p></div>';
+  var rows = S.st.log.filter(function (r) { return r.date === t.date; });
+  h += '<div class="card"><h3>Logged on this date</h3>' + (rows.length ? '<ul class="list">' + rows.map(function (r) {
+    return '<li><div class="main"><b>' + esc(r.heard) + '</b> → ' + esc(r.target) + '<div class="small muted">' + esc(r.lang) + ' · ' + esc(r.mode) +
+      (r.where ? ' · ' + esc(r.where) : '') + (r.dev !== S.device.id && r.dev !== 'workbook' ? ' · other phone' : '') + '</div></div>' +
+      '<button class="linkbtn" data-act="void" data-kind="log" data-id="' + esc(r.id) + '">Void</button></li>';
+  }).join('') + '</ul>' : '<p class="small muted">Nothing yet.</p>') + '</div>';
+  return h;
+};
+
+/* --------------------------------------------------------------- month */
+function monthState() {
+  var m = UI.month;
+  if (!m.label) m.label = currentLabel();
+  var status = S.st.monthStatus[m.label];
+  return { label: m.label, closed: !!(status && status.state === 'closed'), status: status };
+}
+VIEWS.month = function () {
+  var ms = monthState(), m = UI.month;
+  var h = '<div class="card"><div class="spread"><label class="f" for="m-label" style="margin:0">Month column</label>' +
+    '<span class="pill ' + (ms.closed ? 'ok' : '') + '">' + (ms.closed ? 'closed' : (S.st.vocab[ms.label] ? 'open' : 'not started')) + '</span></div>' +
+    '<select id="m-label" data-change="m-label" style="margin-top:6px">' + C.monthLabels().map(function (l) {
+      return '<option' + (l === ms.label ? ' selected' : '') + '>' + l + '</option>'; }).join('') + '</select>' +
+    (ms.label !== currentLabel() ? '<p class="small" style="color:var(--warn)">Today he is in ' + esc(currentLabel()) + '. Check you picked the right column.</p>' : '') + '</div>';
+  if (!isMain()) return h + '<div class="card"><p>Monthly sessions happen on the main phone only. This is a second phone, so it only logs daily words, weeks, firsts and recordings.</p></div>';
+  if (ms.closed) {
+    return h + '<div class="card"><p>' + (ms.status.dev === 'workbook' ? 'This month came closed from the workbook import.' : 'This month was closed on ' + esc(ms.status.t.slice(0, 10)) + '.') + ' It is locked.</p>' +
+      '<p class="small muted">Reopen only to correct an entry error. The reason is kept.</p>' +
+      '<button class="btn danger" data-act="m-reopen">Reopen with a reason…</button></div>';
+  }
+  var steps = [['words', 'Words'], ['review', 'Review'], ['gestures', 'Gestures'], ['grammar', 'Grammar'], ['close', 'Close']];
+  h += '<div class="steps">' + steps.map(function (s) {
+    return '<button data-act="m-step" data-step="' + s[0] + '"' + (m.step === s[0] ? ' aria-current="step"' : '') + '>' + s[1] + '</button>'; }).join('') + '</div>';
+  return h + MONTH_STEPS[m.step](ms.label);
+};
+
+function firstUncoded(label, from) {
+  var items = S.st.items, n = items.length;
+  for (var k = 0; k < n; k++) { var i = (from + k) % n; if (!C.isDone(S.st, label, items[i].id)) return i; }
+  return -1;
+}
+
+var MONTH_STEPS = {};
+MONTH_STEPS.words = function (label) {
+  var items = S.st.items;
+  if (!items.length) return '<div class="card">No word list. Import the workbook file first.</div>';
+  var m = UI.month;
+  if (m.idx === null || m.idx >= items.length) { var f = firstUncoded(label, 0); m.idx = f < 0 ? 0 : f; }
+  var it = items[m.idx], code = (S.st.vocab[label] || {})[it.id] || '';
+  var locks = C.sLocks(S.st, label, it.id), pend = m.pending[it.id] || {};
+  var ka = locks.ka ? 'S' : (pend.ka || code[0] || ''), de = locks.de ? 'S' : (pend.de || code[1] || '');
+  var prog = C.monthProgress(S.st, label);
+  function letters(lang, cur, locked) {
+    return ['X', 'V', 'S'].map(function (L) {
+      var on = cur === L;
+      return '<button class="code' + (locked ? ' locked' : '') + '" data-act="m-code" data-lang="' + lang + '" data-v="' + L + '" aria-pressed="' + on + '"' +
+        (locked && L !== 'S' ? ' disabled' : '') + (locked && L === 'S' ? ' disabled' : '') + '>' + L + '</button>';
+    }).join('');
+  }
+  var h = '<div class="card"><div class="spread small"><span class="muted">' + prog.done + ' of ' + prog.total + ' coded</span>' +
+    '<button class="linkbtn" data-act="m-next-uncoded">Next uncoded</button></div>' +
+    '<div class="small muted" style="margin-top:8px">' + esc(it.cat) + ' · #' + it.id + (it.added ? ' · added word' : '') + '</div>' +
+    '<div class="word-de">' + esc(it.de) + '</div>' +
+    '<div class="word-ka">' + esc(it.kaChild || it.kaRef || '—') + '</div>' +
+    '<div class="small muted">' + (it.kaRef && it.kaRef !== it.kaChild ? 'ref: ' + esc(it.kaRef) + ' · ' : '') + esc(it.en) + '</div>' +
+    '<div class="lang-row"><span class="lbl">ქართული</span>' + letters('ka', ka, locks.ka) + '</div>' +
+    (locks.ka ? '<div class="lock">S is permanent — said in an earlier month</div>' : '') +
+    '<div class="lang-row"><span class="lbl">Deutsch</span>' + letters('de', de, locks.de) + '</div>' +
+    (locks.de ? '<div class="lock">S is permanent — said in an earlier month</div>' : '') +
+    (locks.ka && locks.de ? '<p class="small muted" style="margin-top:10px">Said in both languages already. Nothing to code; it is written as SS when the month closes.</p>' : '') +
+    (!locks.ka && !locks.de ? '<button class="btn quiet block" data-act="m-xx">XX — neither yet</button>' : '') +
+    '<div class="rule">Unsure V or X → X. Unsure S or V → V. Code what already happened; never test him to fill a cell.</div>' +
+    '<div class="spread" style="margin-top:12px"><button class="btn quiet" data-act="m-prev"' + (m.idx === 0 ? ' disabled' : '') + '>‹ Prev</button>' +
+    '<span class="small muted">' + (m.idx + 1) + ' / ' + items.length + '</span>' +
+    '<button class="btn quiet" data-act="m-next"' + (m.idx === items.length - 1 ? ' disabled' : '') + '>Next ›</button></div></div>';
+  h += '<details class="card"><summary>Add a word he uses that is not on the list</summary>' +
+    '<label class="f" for="nw-de">Deutsch</label><input type="text" id="nw-de" autocomplete="off">' +
+    '<label class="f" for="nw-ka">ქართული</label><input type="text" id="nw-ka" autocomplete="off">' +
+    '<label class="f" for="nw-en">English</label><input type="text" id="nw-en" autocomplete="off">' +
+    '<label class="f" for="nw-cat">Category</label><select id="nw-cat">' + cats().map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select>' +
+    (UI.msg.nw ? '<div class="err">' + esc(UI.msg.nw) + '</div>' : '') +
+    '<button class="btn secondary block" data-act="m-addword">Add word #' + C.nextItemId(S.st) + '</button>' +
+    '<p class="tiny muted">New words get the next free number and can never be renumbered or deleted.</p></details>';
+  return h;
+};
+function cats() {
+  var seen = {}, out = [];
+  S.st.items.forEach(function (it) { if (it.cat && !seen[it.cat]) { seen[it.cat] = 1; out.push(it.cat); } });
+  return out;
+}
+MONTH_STEPS.review = function (label) {
+  var ch = C.changesSincePrevious(S.st, label), prog = C.monthProgress(S.st, label);
+  var h = '<div class="card"><h3>Every change since the previous month</h3>';
+  if (!ch.prev) h += '<p class="small muted">No earlier month to compare with.</p>';
+  else if (!ch.rows.length) h += '<p class="small muted">No coded item differs from ' + esc(ch.prev) + ' yet.</p>';
+  else h += '<p class="small muted">Compared with ' + esc(ch.prev) + ', in both directions. Tap one to recheck it.</p><ul class="list">' + ch.rows.map(function (r) {
+    var i = S.st.items.indexOf(r.item);
+    return '<li><div class="main"><b>' + esc(r.item.de) + '</b> · ' + esc(r.item.kaChild || r.item.kaRef) + '</div>' +
+      '<button class="linkbtn" data-act="m-goto" data-i="' + i + '">' + esc(r.was || '—') + ' → ' + esc(r.now) + '</button></li>'; }).join('') + '</ul>';
+  if (prog.done < prog.total) h += '<p class="err">' + (prog.total - prog.done) + ' words are not coded yet.</p>';
+  return h + '</div>';
+};
+MONTH_STEPS.gestures = function (label) {
+  var carried = C.carriedGestures(S.st, label), now = S.st.gestureTicks[label] || {};
+  return '<div class="card"><h3>Gestures he uses</h3><p class="small muted">Once ticked, a gesture stays ticked in every later month.</p>' +
+    S.st.gestures.map(function (g) {
+      var c = !!carried[g.id], on = c || !!now[g.id];
+      return '<label class="check"><input type="checkbox" data-change="m-gesture" data-id="' + g.id + '"' + (on ? ' checked' : '') + (c ? ' disabled' : '') + '>' +
+        '<span><b>' + esc(g.en || g.item) + '</b><br><span class="small muted">' + esc(g.item) + (c ? ' · from an earlier month' : '') + '</span></span></label>';
+    }).join('') + '</div>';
+};
+var RULE_TEXT = {
+  morph: 'Tick only if: at least 3 clear productive uses this month, across at least 2 different words.',
+  utterance: 'Tick only if: at least 3 independent occurrences this month.'
+};
+MONTH_STEPS.grammar = function (label) {
+  var ticks = S.st.grammarTick[label] || {}, lo = S.st.longest[label] || {};
+  var h = '<div class="card"><h3>Grammar</h3><p class="small muted">Two separate facts: the date it first appeared at all (enter once), and whether it was used consistently this month.</p></div>';
+  h += S.st.grammar.map(function (g) {
+    var f = S.st.grammarFirst[g.id], open = UI.firstOpen === 'g' + g.id;
+    var firstHtml = f && !open
+      ? '<div class="spread small"><span>First reached <b>' + esc(f.date) + '</b> · evidence ' + esc(f.evidence || '?') + ' · age ' + esc(age(f.date)) + '</span>' +
+        '<button class="linkbtn" data-act="g-correct" data-id="' + g.id + '">Correct…</button></div>'
+      : (open || !f ? '<details' + (open ? ' open' : '') + '><summary>First reached — enter date</summary>' +
+          '<input type="date" id="gf-date-' + g.id + '" value="' + esc(f ? f.date : today()) + '">' +
+          '<label class="f">Evidence</label>' + seg('gf-ev-' + g.id, [['A', 'A recording'], ['B', 'B same day'], ['C', 'C memory']], (UI.segs['gf-ev-' + g.id]) || '') +
+          (f ? '<label class="f" for="gf-reason-' + g.id + '">Reason for correcting</label><input type="text" id="gf-reason-' + g.id + '">' : '') +
+          '<button class="btn secondary block" data-act="g-first" data-id="' + g.id + '">Save first-reached date</button></details>' : '');
+    return '<div class="card"><div class="small muted">' + esc(g.lang) + ' · ' + esc(g.rule) + '</div><b>' + esc(g.text) + '</b>' +
+      '<div class="small muted">' + esc(g.en) + '</div><div style="margin-top:8px">' + firstHtml + '</div>' +
+      '<label class="check"><input type="checkbox" data-change="m-gtick" data-id="' + g.id + '"' + (ticks[g.id] ? ' checked' : '') + '>' +
+      '<span><b>Used consistently this month</b><br><span class="small muted">' + esc(RULE_TEXT[g.rule] || '') + '</span></span></label></div>';
+  }).join('');
+  h += '<div class="card"><h3>Longest utterance this month</h3><p class="small muted">Write it out in full, as he said it.</p>' +
+    [['ka', 'ქართული'], ['de', 'Deutsch'], ['mixed', 'Mixed']].map(function (x) {
+      return '<label class="f" for="lo-' + x[0] + '">' + x[1] + '</label><textarea id="lo-' + x[0] + '" data-change="m-longest" data-lang="' + x[0] + '">' + esc(lo[x[0]] || '') + '</textarea>';
+    }).join('') + '</div>';
+  return h;
+};
+MONTH_STEPS.close = function (label) {
+  var prog = C.monthProgress(S.st, label), ok = prog.done === prog.total && prog.total > 0;
+  return '<div class="card"><h3>Close ' + esc(label) + '</h3>' +
+    '<p>' + (ok ? '<span class="pill ok">All ' + prog.total + ' words coded</span>' : '<span class="pill bad">' + (prog.total - prog.done) + ' words not coded</span>') + '</p>' +
+    '<p class="small">Before closing: did you go through Review, Gestures and Grammar together?</p>' +
+    '<p class="small muted">Closing writes this month\'s carried gestures and locks the column. Then send a backup.</p>' +
+    '<button class="btn block" data-act="m-close"' + (ok ? '' : ' disabled') + '>Close month ' + esc(label) + '</button></div>';
+};
+
+/* ---------------------------------------------------------------- week */
+var FLAGS = ['none', 'Eingewöhnung', 'illness', 'holiday', 'trip to Georgia', 'visitor from Georgia', 'Kita closed', 'change of group', 'other'];
+VIEWS.week = function () {
+  var w = UI.weekDraft || (UI.weekDraft = { week: C.mondayOf(today()) });
+  function num(id, label) { return '<label class="f" for="' + id + '">' + label + '</label><input type="number" inputmode="decimal" min="0" step="0.5" id="' + id + '">'; }
+  var h = '<div class="card"><div class="spread"><label class="f" for="w-week" style="margin-top:0">Week starting (Monday)</label><span class="small muted">age ' + esc(age(w.week)) + '</span></div>' +
+    '<input type="date" id="w-week" value="' + esc(w.week) + '" data-change="w-week">' +
+    num('w-ka', 'ქართული hours, awake at home') + num('w-kita', 'Kita hours attended') + num('w-deout', 'German outside Kita (hours)') +
+    num('w-other', 'Other language (hours)') + num('w-ill', 'Days ill / absent') +
+    '<label class="f" for="w-flag">Disruption</label><select id="w-flag">' + FLAGS.map(function (f) { return '<option>' + esc(f) + '</option>'; }).join('') + '</select>' +
+    '<label class="f" for="w-notes">Notes</label><input type="text" id="w-notes">' +
+    (UI.msg.week ? '<div class="err">' + esc(UI.msg.week) + '</div>' : '') +
+    '<button class="btn block" data-act="w-save">Save week</button>' +
+    '<p class="tiny muted">Proxies, not measured input. Estimate the same way every week. Trip-to-Georgia weeks deserve the most detail in Notes.</p></div>' +
+    '<div class="card"><h3>Weekly backup</h3><p class="small muted">Sunday is backup day. Save the file to iCloud Drive.</p><button class="btn secondary block" data-act="backup">Send backup</button></div>';
+  var rows = S.st.exposure.slice().reverse();
+  h += '<div class="card"><h3>Weeks logged</h3>' + (rows.length ? '<ul class="list">' + rows.map(function (r) {
+    return '<li><div class="main">' + esc(r.week) + (r.flag && r.flag !== 'none' ? ' · <b>' + esc(r.flag) + '</b>' : '') + '</div>' +
+      '<button class="linkbtn" data-act="void" data-kind="exp" data-id="' + esc(r.id) + '">Void</button></li>'; }).join('') + '</ul>' : '<p class="small muted">None yet.</p>') + '</div>';
+  return h;
+};
+
+/* -------------------------------------------------------------- firsts */
+VIEWS.firsts = function () {
+  return '<div class="card"><p class="small muted">Enter a first on the day it happens. A first reconstructed weeks later is evidence level C.</p></div>' +
+    S.st.milestoneDefs.map(function (m) {
+      var r = S.st.milestones[m.id], open = UI.firstOpen === 'm' + m.id;
+      var h = '<div class="card"><b>' + esc(m.text) + '</b>';
+      if (r && !open) {
+        h += '<div class="small" style="margin-top:6px">' + esc(r.date) + ' · age ' + esc(age(r.date)) + ' · ' + esc(r.lang || '') + ' · evidence ' + esc(r.evidence || '?') +
+          (r.form ? '<br>“' + esc(r.form) + '”' : '') + (r.session ? '<br>session ' + esc(r.session) : '') + '</div>' +
+          '<button class="linkbtn" data-act="ms-open" data-id="' + m.id + '">Correct…</button>';
+      } else if (!open) {
+        h += '<div><button class="linkbtn" data-act="ms-open" data-id="' + m.id + '">Record this first</button></div>';
+      } else {
+        var sessions = S.st.recordings.map(function (x) { return C.sessionId(x.date, x.start); }).filter(Boolean).reverse();
+        h += '<label class="f" for="ms-date">Date</label><input type="date" id="ms-date" value="' + esc(r ? r.date : today()) + '">' +
+          '<label class="f">Language</label>' + seg('ms-lang', ['KA', 'DE', 'mixed'], UI.segs['ms-lang'] || (r && r.lang) || '') +
+          '<label class="f" for="ms-form">Exact form</label><input type="text" id="ms-form" value="' + esc(r ? r.form : '') + '">' +
+          '<label class="f" for="ms-ctx">Context</label><input type="text" id="ms-ctx" value="' + esc(r ? r.context : '') + '">' +
+          '<label class="f">Evidence</label>' + seg('ms-ev', [['A', 'A recording'], ['B', 'B same day'], ['C', 'C memory']], UI.segs['ms-ev'] || (r && r.evidence) || '') +
+          '<label class="f" for="ms-sess">Recording session</label><select id="ms-sess"><option value="">none</option>' + sessions.map(function (s) {
+            return '<option' + (r && r.session === s ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') + '</select>' +
+          (r ? '<label class="f" for="ms-reason">Reason for correcting</label><input type="text" id="ms-reason">' : '') +
+          (UI.msg.ms ? '<div class="err">' + esc(UI.msg.ms) + '</div>' : '') +
+          '<div class="row" style="margin-top:12px"><button class="btn" data-act="ms-save" data-id="' + m.id + '">Save</button><button class="btn quiet" data-act="ms-cancel">Cancel</button></div>';
+      }
+      return h + '</div>';
+    }).join('');
+};
+
+/* -------------------------------------------------------------- record */
+var ACTIVITIES = ['meal', 'play', 'book reading', 'bath', 'outdoors', 'mixed'];
+VIEWS.record = function () {
+  var d = UI.recDraft || (UI.recDraft = { date: today(), start: '' });
+  var sid = C.sessionId(d.date, d.start), clash = sid && S.st.recordings.some(function (r) { return C.sessionId(r.date, r.start) === sid; });
+  var file = sid ? sid + (S.settings.fileSuffix || '') : '';
+  var h = '<div class="card"><button class="btn block" data-act="r-now" style="margin-top:0">● Starting a recording now</button>' +
+    '<div class="row" style="margin-top:12px"><div style="flex:1"><label class="f" for="r-date">Date</label><input type="date" id="r-date" value="' + esc(d.date) + '" data-change="r-date"></div>' +
+    '<div style="flex:1"><label class="f" for="r-start">Start time</label><input type="time" id="r-start" value="' + esc(d.start) + '" data-change="r-start"></div></div>' +
+    '<label class="f">Session ID</label><div class="big-id">' + (sid ? esc(sid) : '<span class="muted">set date and start time</span>') + '</div>' +
+    (clash ? '<p class="err">A session with this ID already exists. Two recordings starting in the same minute share an ID — note it below.</p>' : '') +
+    (sid ? '<label class="f">Rename the camera file to (keep its extension)</label><div class="spread"><span class="big-id" style="font-size:16px">' + esc(file) + '</span>' +
+      '<button class="btn quiet" data-act="copy" data-text="' + esc(file) + '">Copy</button></div>' : '') +
+    '<label class="f" for="r-dur">Duration (minutes)</label><input type="number" inputmode="numeric" min="1" id="r-dur">' +
+    '<label class="f" for="r-act">Activity</label><select id="r-act">' + ACTIVITIES.map(function (a) { return '<option>' + a + '</option>'; }).join('') + '</select>' +
+    '<label class="f">Language spoken to him</label>' + seg('r-lang', ['KA', 'DE', 'both'], UI.segs['r-lang'] || '') +
+    '<label class="f" for="r-who">Who present</label><input type="text" id="r-who">' +
+    '<label class="f" for="r-noise">Noise / problems</label><input type="text" id="r-noise" placeholder="e.g. TV on, outside the usual week">' +
+    (UI.msg.rec ? '<div class="err">' + esc(UI.msg.rec) + '</div>' : '') +
+    '<button class="btn block" data-act="r-save">Save session</button>' +
+    '<p class="tiny muted">Same activities every month, TV off, behave as if not recording.</p></div>';
+  var rows = S.st.recordings.slice().reverse();
+  h += '<div class="card"><h3>Sessions</h3>' + (rows.length ? '<ul class="list">' + rows.map(function (r) {
+    return '<li><div class="main"><span class="big-id" style="font-size:15px">' + esc(C.sessionId(r.date, r.start)) + '</span>' +
+      '<div class="small muted">' + esc(r.activity || '') + ' · ' + esc(r.dur || '?') + ' min · transcribed: ' + esc(r.transcribed || 'no') + (r.mlu ? ' · MLU lines ' + esc(r.mlu) : '') + '</div></div>' +
+      '<div><button class="linkbtn" data-act="r-update" data-id="' + esc(r.id) + '">Update</button>' +
+      '<button class="linkbtn" data-act="void" data-kind="rec" data-id="' + esc(r.id) + '">Void</button></div></li>'; }).join('') + '</ul>' : '<p class="small muted">None yet.</p>') + '</div>';
+  return h;
+};
+
+/* ------------------------------------------------------------ settings */
+VIEWS.settings = function () {
+  var d = daysSince(S.lastBackup);
+  return '<div class="card"><h3>This phone</h3>' + (S.device
+      ? '<p>' + esc(S.device.label) + ' · <b>' + (isMain() ? 'main phone' : 'second phone') + '</b></p><button class="btn quiet" data-act="toggle-main">' +
+        (isMain() ? 'Make this a second phone' : 'Make this the main phone') + '</button>'
+      : '<p class="muted">Not set up yet.</p>') +
+    '<p class="small muted">Child date of birth: <b>' + esc(S.settings.dob || 'not set') + '</b>. It comes from the workbook import and cannot be edited here.</p></div>' +
+    '<div class="card"><h3>Backup</h3><p class="small">Last backup: <b>' + (d === null ? 'never' : d === 0 ? 'today' : d + ' days ago') + '</b></p>' +
+    '<button class="btn block" data-act="backup">Send backup</button>' +
+    '<p class="small muted">Save it to iCloud Drive. Once a month, upload the latest backup to Claude to generate the workbook snapshot.</p>' +
+    '<button class="btn secondary block" data-act="import">Import a file (merge)…</button>' +
+    '<p class="small muted">Importing merges by entry ID. Importing the same file twice adds nothing.</p>' + (UI.importNote ? '<p class="small">' + esc(UI.importNote) + '</p>' : '') + '</div>' +
+    '<div class="card"><h3>CSV fallback</h3><p class="small muted">For pasting into the workbook by hand, if ever needed.</p>' +
+    '<label class="f" for="csv-month">Month</label><select id="csv-month">' + C.monthLabels().map(function (l) { return '<option' + (l === currentLabel() ? ' selected' : '') + '>' + l + '</option>'; }).join('') + '</select>' +
+    '<div class="row" style="margin-top:10px">' + [['month', 'Month column'], ['log', 'Daily log'], ['exp', 'Exposure'], ['ms', 'Milestones'], ['rec', 'Recordings']].map(function (x) {
+      return '<button class="btn quiet" data-act="csv" data-kind="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div></div>' +
+    '<div class="card"><h3>About</h3><p class="small muted">Ena ' + APP_VERSION + ' · data format ' + C.FORMAT_VERSION + ' · workbook ' + C.SCHEMA +
+    ' · storage ' + (S.storageOK ? (S.persisted ? 'persistent' : 'standard') : 'unavailable') + ' · ' + S.events.length + ' entries stored on this phone</p>' +
+    '<p class="small muted">This app shows no counts, charts or trends. Results belong in the workbook dashboard, read after a month is closed.</p></div>' +
+    '<details class="card"><summary>Erase this phone</summary><p class="small">Deletes everything stored in Ena on this phone. Send a backup first.</p>' +
+    '<label class="f" for="erase-confirm">Type ERASE to confirm</label><input type="text" id="erase-confirm" autocomplete="off">' +
+    '<button class="btn danger block" data-act="erase">Erase</button></details>';
+};
+
+/* ============================================================= actions */
+UI.segs = {};
+var ACT = {};
+ACT.tab = function (el) { UI.tab = el.dataset.tab; UI.msg = {}; UI.firstOpen = null; render(); window.scrollTo(0, 0); };
+ACT.seg = function (el) {
+  var n = el.dataset.name, v = el.dataset.value;
+  if (n === 't-lang') UI.todayDraft.lang = v;
+  else if (n === 't-mode') UI.todayDraft.mode = v;
+  else if (n === 'ob-main') UI.onboard.main = v;
+  else UI.segs[n] = v;
+  Array.prototype.forEach.call(el.parentNode.children, function (b) { b.setAttribute('aria-pressed', String(b === el)); });
+};
+ACT.chip = function (el) {
+  var inp = document.getElementById(el.dataset.for);
+  inp.value = inp.value ? inp.value + ', ' + el.dataset.value : el.dataset.value;
+};
+ACT['ob-save'] = function () {
+  var label = val('ob-label'), main = UI.onboard.main;
+  UI.onboard.label = label;
+  if (!label || !main) { UI.msg.ob = 'Give the phone a name and choose main or second.'; return soft(); }
+  S.device = { id: C.uuid(), label: label, main: main === 'yes' };
+  saveKV('device', S.device).then(function () { UI.msg = {}; render(); });
+};
+ACT['t-save'] = function () {
+  var t = UI.todayDraft, heard = val('t-heard'), target = val('t-target');
+  t.date = val('t-date') || t.date;
+  if (!C.parseDate(t.date)) { UI.msg.today = 'Pick a valid date.'; return soft(); }
+  if (!heard || !target || !t.lang || !t.mode) {
+    UI.msg.today = 'As heard, target word, language and how are all required.';
+    return soft();
+  }
+  add('log.add', { date: t.date, heard: heard, target: target, lang: t.lang, mode: t.mode, where: val('t-where'), note: val('t-note') }).then(function () {
+    UI.msg = {}; t.lang = ''; t.mode = ''; render(); toast('Saved'); document.getElementById('t-heard').focus();
+  });
+};
+function soft() {
+  var keep = {};
+  Array.prototype.forEach.call(document.querySelectorAll('#view input[id], #view select[id], #view textarea[id]'), function (el) {
+    if (el.type !== 'checkbox' && el.type !== 'file' && el.dataset.change === undefined) keep[el.id] = el.value;
+  });
+  render();
+  Object.keys(keep).forEach(function (id) { var el = document.getElementById(id); if (el) el.value = keep[id]; });
+}
+function restore(map) {
+  Object.keys(map).forEach(function (k) {
+    var el = document.getElementById({ heard: 't-heard', target: 't-target', where: 't-where', note: 't-note' }[k] || k);
+    if (el) el.value = map[k];
+  });
+}
+ACT.void = function (el) {
+  var reason = prompt('Reason for voiding this entry? (kept in the record)');
+  if (!reason) return;
+  add(el.dataset.kind + '.void', { target: el.dataset.id, reason: reason }).then(function () { render(); toast('Voided'); });
+};
+ACT['m-step'] = function (el) { UI.month.step = el.dataset.step; render(); };
+ACT['m-code'] = function (el) {
+  var m = UI.month, label = monthState().label, it = S.st.items[m.idx];
+  var locks = C.sLocks(S.st, label, it.id), code = (S.st.vocab[label] || {})[it.id] || '';
+  var p = m.pending[it.id] || (m.pending[it.id] = {});
+  p[el.dataset.lang] = el.dataset.v;
+  var ka = locks.ka ? 'S' : (p.ka || code[0] || ''), de = locks.de ? 'S' : (p.de || code[1] || '');
+  if (ka && de) {
+    var newCode = ka + de;
+    delete m.pending[it.id];
+    if (newCode === code) return render();
+    add('vocab.set', { month: label, item: it.id, code: newCode }).then(function () {
+      if (!code) { var nx = firstUncoded(label, m.idx + 1); if (nx >= 0) m.idx = nx; }
+      render();
+    });
+  } else render();
+};
+ACT['m-xx'] = function () {
+  var m = UI.month, label = monthState().label, it = S.st.items[m.idx], code = (S.st.vocab[label] || {})[it.id] || '';
+  delete m.pending[it.id];
+  if (code === 'XX') return render();
+  add('vocab.set', { month: label, item: it.id, code: 'XX' }).then(function () {
+    if (!code) { var nx = firstUncoded(label, m.idx + 1); if (nx >= 0) m.idx = nx; }
+    render();
+  });
+};
+ACT['m-prev'] = function () { if (UI.month.idx > 0) UI.month.idx--; render(); };
+ACT['m-next'] = function () { if (UI.month.idx < S.st.items.length - 1) UI.month.idx++; render(); };
+ACT['m-next-uncoded'] = function () {
+  var f = firstUncoded(monthState().label, UI.month.idx + 1);
+  if (f < 0) { toast('Every word is coded'); return; }
+  UI.month.idx = f; render();
+};
+ACT['m-goto'] = function (el) { UI.month.idx = +el.dataset.i; UI.month.step = 'words'; render(); };
+ACT['m-addword'] = function () {
+  var de = val('nw-de'), ka = val('nw-ka'), en = val('nw-en'), cat = val('nw-cat');
+  if (!de && !ka) { UI.msg.nw = 'Enter at least the German or the Georgian word.'; return soft(); }
+  var id = C.nextItemId(S.st);
+  add('item.add', { id: id, cat: cat, de: de, ka: ka, en: en }).then(function () {
+    UI.msg = {}; UI.month.idx = S.st.items.length - 1; render(); toast('Word #' + id + ' added');
+  });
+};
+ACT['m-close'] = function () {
+  var label = monthState().label;
+  if (!confirm('Close ' + label + '? The column locks. You can only reopen it with a reason.')) return;
+  var carried = C.carriedGestures(S.st, label), now = S.st.gestureTicks[label] || {}, batch = [];
+  Object.keys(carried).forEach(function (id) { if (!now[id]) batch.push(['gesture.set', { month: label, id: +id, on: true, carried: true }]); });
+  C.carriedSS(S.st, label).forEach(function (id) { batch.push(['vocab.set', { month: label, item: id, code: 'SS', carried: true }]); });
+  batch.push(['month.close', { month: label }]);
+  addEvents(batch).then(function () { UI.month.step = 'words'; UI.month.idx = null; render(); toast('Closed. Now send a backup.'); });
+};
+ACT['m-reopen'] = function () {
+  var reason = prompt('Why does this month need reopening? (kept in the record)');
+  if (!reason) return;
+  add('month.reopen', { month: monthState().label, reason: reason }).then(render);
+};
+ACT['g-correct'] = function (el) { UI.firstOpen = 'g' + el.dataset.id; render(); };
+ACT['g-first'] = function (el) {
+  var id = +el.dataset.id, date = val('gf-date-' + id), ev = UI.segs['gf-ev-' + id], had = !!S.st.grammarFirst[id];
+  var reason = had ? val('gf-reason-' + id) : '';
+  if (!C.parseDate(date) || !ev || (had && !reason)) { toast(had ? 'Date, evidence and a reason are required' : 'Date and evidence are required'); return; }
+  if (!C.ageText(S.settings.dob, date)) { toast('That date is before his date of birth'); return; }
+  add('grammar.first', { id: id, date: date, evidence: ev, reason: reason }).then(function () { UI.firstOpen = null; delete UI.segs['gf-ev-' + id]; render(); });
+};
+ACT['ms-open'] = function (el) { UI.firstOpen = 'm' + el.dataset.id; UI.msg = {}; delete UI.segs['ms-lang']; delete UI.segs['ms-ev']; render(); };
+ACT['ms-cancel'] = function () { UI.firstOpen = null; render(); };
+ACT['ms-save'] = function (el) {
+  var id = +el.dataset.id, had = !!S.st.milestones[id], r = S.st.milestones[id] || {};
+  var d = { id: id, date: val('ms-date'), lang: UI.segs['ms-lang'] || r.lang || '', form: val('ms-form'), context: val('ms-ctx'),
+            evidence: UI.segs['ms-ev'] || r.evidence || '', session: val('ms-sess'), reason: had ? val('ms-reason') : '' };
+  if (!C.parseDate(d.date) || !d.lang || !d.evidence) { UI.msg.ms = 'Date, language and evidence are required.'; return soft(); }
+  if (had && !d.reason) { UI.msg.ms = 'A correction needs a reason.'; return soft(); }
+  if (!C.ageText(S.settings.dob, d.date)) { UI.msg.ms = 'That date is before his date of birth.'; return soft(); }
+  add('ms.set', d).then(function () { UI.firstOpen = null; UI.msg = {}; render(); toast('First recorded'); });
+};
+ACT['w-save'] = function () {
+  var w = UI.weekDraft; w.week = val('w-week') || w.week;
+  if (!C.parseDate(w.week)) { UI.msg.week = 'Pick a valid date.'; return soft(); }
+  if (S.st.exposure.some(function (r) { return r.week === w.week; })) { UI.msg.week = 'This week is already logged. Void the old entry first to correct it.'; return soft(); }
+  var d = { week: w.week, ka: val('w-ka'), kita: val('w-kita'), deOut: val('w-deout'), other: val('w-other'), ill: val('w-ill'), flag: val('w-flag'), notes: val('w-notes') };
+  if (d.ka === '' && d.kita === '') { UI.msg.week = 'Enter at least the Georgian and Kita hours.'; return soft(); }
+  add('exp.add', d).then(function () { UI.msg = {}; render(); toast('Week saved'); });
+};
+ACT['r-now'] = function () { UI.recDraft = { date: today(), start: nowHM() }; soft(); };
+ACT['r-save'] = function () {
+  var d = UI.recDraft; d.date = val('r-date') || d.date; d.start = val('r-start') || d.start;
+  var sid = C.sessionId(d.date, d.start);
+  if (!sid) { UI.msg.rec = 'Date and start time are required.'; return soft(); }
+  if (!UI.segs['r-lang']) { UI.msg.rec = 'Choose the language spoken to him.'; return soft(); }
+  add('rec.add', { date: d.date, start: d.start, dur: val('r-dur'), activity: val('r-act'), lang: UI.segs['r-lang'], who: val('r-who'),
+                   file: sid + (S.settings.fileSuffix || ''), noise: val('r-noise'), transcribed: 'no', mlu: '' }).then(function () {
+    UI.msg = {}; UI.recDraft = null; delete UI.segs['r-lang']; render(); toast('Session ' + sid + ' saved');
+  });
+};
+ACT['r-update'] = function (el) {
+  var t = prompt('Transcribed? Type yes, no or partly'); if (t === null) return;
+  t = t.trim().toLowerCase(); if (['yes', 'no', 'partly'].indexOf(t) < 0) { toast('Type yes, no or partly'); return; }
+  var mlu = prompt('MLU sample lines used (e.g. 51–150), or leave empty') || '';
+  add('rec.update', { target: el.dataset.id, fields: { transcribed: t, mlu: mlu.trim() } }).then(render);
+};
+ACT.copy = function (el) {
+  var t = el.dataset.text;
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast('Copied'); }, function () { toast(t); });
+  else toast(t);
+};
+ACT['toggle-main'] = function () {
+  var to = !isMain();
+  if (!confirm(to ? 'Make this the MAIN phone? Only one phone should be main — monthly coding counts only from it.' : 'Make this a second phone? Monthly sessions will no longer be possible here.')) return;
+  S.device.main = to; saveKV('device', S.device).then(render);
+};
+ACT.erase = function () {
+  if (val('erase-confirm') !== 'ERASE') { toast('Type ERASE to confirm'); return; }
+  (S.storageOK ? DB.wipe() : Promise.resolve()).then(function () { location.reload(); });
+};
+ACT.import = function () { document.getElementById('filepick').click(); };
+ACT.backup = function () {
+  var b = C.buildBackup({ events: S.events, defs: S.defs, settings: S.settings, device: S.device, background: S.background, seedId: S.seedId, appVersion: APP_VERSION });
+  var stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '').replace(/^(\d{8})(\d{4})$/, '$1-$2');
+  var name = 'ena-backup-' + stamp + '-' + (S.device.label || 'phone').replace(/[^A-Za-z0-9]+/g, '-') + '.json';
+  shareFile(name, JSON.stringify(b), 'application/json').then(function (ok) {
+    if (!ok) return;
+    S.lastBackup = new Date().toISOString(); saveKV('lastBackup', S.lastBackup).then(render);
+  });
+};
+ACT.csv = function (el) {
+  var k = el.dataset.kind, dob = S.settings.dob, label = val('csv-month'), text, name;
+  if (k === 'month') { text = C.csvMonth(S.st, label); name = 'ena-month-' + label.replace(';', '_') + '.csv'; }
+  else if (k === 'log') { text = C.csvDailyLog(S.st, dob); name = 'ena-01-daily-log.csv'; }
+  else if (k === 'exp') { text = C.csvExposure(S.st, dob); name = 'ena-05-exposure.csv'; }
+  else if (k === 'ms') { text = C.csvMilestones(S.st, dob); name = 'ena-06-milestones.csv'; }
+  else { text = C.csvRecordings(S.st, dob); name = 'ena-07-recordings.csv'; }
+  shareFile(name, text, 'text/csv');
+};
+
+function shareFile(name, text, type) {
+  var blob = new Blob([text], { type: type });
+  try {
+    var file = new File([blob], name, { type: type });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      return navigator.share({ files: [file], title: name }).then(function () { return true; }, function (e) {
+        if (e && e.name === 'AbortError') { toast('Not sent'); return false; }
+        return download(blob, name);
+      });
+    }
+  } catch (e) { /* fall through */ }
+  return Promise.resolve(download(blob, name));
+}
+function download(blob, name) {
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  return true;
+}
+
+/* ============================================================== import */
+function importText(text) {
+  var file;
+  try { file = JSON.parse(text); } catch (e) { UI.importNote = 'That file is not readable JSON. Nothing was imported.'; return render(); }
+  var chk = C.checkImport(file, { dob: S.settings.dob, seedId: S.seedId });
+  if (!chk.ok) { UI.importNote = chk.error; return render(); }
+  if (chk.warnings.length && !confirm(chk.warnings.join('\n\n') + '\n\nImport anyway?')) return;
+  var merged = C.mergeEvents(S.events, file.events || []);
+  var newDefs = C.mergeDefs(S.defs, file.defs);
+  var newEvents = merged.events.slice(S.events.length);
+  var jobs = [];
+  if (S.storageOK) jobs.push(DB.putEvents(newEvents));
+  if (file.settings) {
+    var ch = false;
+    if (!S.settings.dob && file.settings.dob) { S.settings.dob = file.settings.dob; ch = true; }
+    if (S.settings.fileSuffix === undefined && file.settings.fileSuffix !== undefined) { S.settings.fileSuffix = file.settings.fileSuffix; ch = true; }
+    if (ch) jobs.push(saveKV('settings', S.settings));
+  }
+  if (file.background && Object.keys(file.background).length && !Object.keys(S.background).length) { S.background = file.background; jobs.push(saveKV('background', S.background)); }
+  if (file.seedId && !S.seedId) { S.seedId = file.seedId; jobs.push(saveKV('seedId', S.seedId)); }
+  S.defs = newDefs; jobs.push(saveKV('defs', S.defs));
+  Promise.all(jobs).then(function () {
+    S.events = merged.events; refold();
+    UI.importNote = 'Imported ' + merged.added + ' new entries' + (merged.rejected ? ', skipped ' + merged.rejected + ' unreadable' : '') +
+      (file.device && file.device.label ? ' from “' + file.device.label + '”' : '') + '.';
+    render(); toast('Import done');
+  }, function (err) { UI.importNote = 'Import failed: ' + (err && err.message || err); render(); });
+}
+document.getElementById('filepick').addEventListener('change', function (e) {
+  var f = e.target.files && e.target.files[0]; if (!f) return;
+  var r = new FileReader(); r.onload = function () { importText(String(r.result)); e.target.value = ''; }; r.readAsText(f);
+});
+
+/* ============================================================== events */
+document.addEventListener('click', function (e) {
+  var el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  var fn = ACT[el.dataset.act];
+  if (fn) { e.preventDefault(); fn(el, e); }
+});
+document.addEventListener('change', function (e) {
+  var el = e.target, k = el.dataset && el.dataset.change;
+  if (!k) return;
+  var label = UI.month.label;
+  if (k === 't-date') { UI.todayDraft.date = el.value || today(); soft(); }
+  else if (k === 'm-label') { UI.month.label = el.value; UI.month.idx = null; UI.month.pending = {}; render(); }
+  else if (k === 'm-gesture') add('gesture.set', { month: label, id: +el.dataset.id, on: el.checked }).then(render);
+  else if (k === 'm-gtick') add('grammar.tick', { month: label, id: +el.dataset.id, on: el.checked }).then(render);
+  else if (k === 'm-longest') add('longest.set', { month: label, lang: el.dataset.lang, text: el.value.trim() }).then(function () { toast('Saved'); });
+  else if (k === 'w-week') { UI.weekDraft.week = el.value; soft(); }
+  else if (k === 'r-date') { UI.recDraft.date = el.value; soft(); }
+  else if (k === 'r-start') { UI.recDraft.start = el.value; soft(); }
+});
+
+/* ================================================================ boot */
+function boot() {
+  return DB.open().then(function () {
+    return Promise.all([DB.allEvents(), DB.get('defs'), DB.get('settings'), DB.get('device'), DB.get('background'), DB.get('seedId'), DB.get('lastBackup')]);
+  }).then(function (r) {
+    S.events = r[0] || []; S.defs = r[1] || C.emptyDefs(); S.settings = r[2] || { dob: '' }; S.device = r[3] || null;
+    S.background = r[4] || {}; S.seedId = r[5] || ''; S.lastBackup = r[6] || '';
+    if (navigator.storage && navigator.storage.persist) {
+      return navigator.storage.persist().then(function (p) { S.persisted = p; }, function () {});
+    }
+  }).catch(function () { S.storageOK = false; }).then(function () {
+    refold(); render();
+  });
+}
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('./sw.js').catch(function () {});
+}
+boot();
+</script>
+</body>
+</html>
